@@ -2,14 +2,18 @@ module main
 
 import ui
 import os
+import gx
 
 const (
-	win_width   = 1000
-	win_height  = 500
+	win_width   = 520
+	win_height  = 570
 	nr_cols     = 4
 	cell_height = 25
 	cell_width  = 100
 	table_width = cell_width * nr_cols
+	slider_min = 0
+	slider_max = 255
+	slider_val = (slider_max + slider_min) / 2
 )
 
 struct Mail {
@@ -42,9 +46,9 @@ mut:
 	ssl bool
 	user []User
 	window     &ui.Window = unsafe { nil }
-	// label      &ui.Label
 	is_error   bool
 	is_error_register bool
+	rgb_rectangle  &ui.Rectangle = unsafe { nil }
 }
 
 fn main() {
@@ -54,11 +58,20 @@ fn main() {
 	}
 	mut app := &State{}
 
+	app.rgb_rectangle = ui.rectangle(
+		id: 'rgb_rect'
+		border: true
+		color: gx.Color{
+			r: slider_val
+			g: slider_val
+			b: slider_val
+		}
+	)
+
 	window := ui.window(
 		width: win_width
 		height: win_height
 		title: 'Mailer Addict'
-		// bg_color: gx.light_blue
 		children: [
 			ui.row(
 				margin: ui.Margin{10, 10, 10, 10}
@@ -68,6 +81,9 @@ fn main() {
 					ui.column(
 						spacing: 13
 						children: [
+							ui.label(
+						        text: 'Send mail'
+					        ),
 							ui.textbox(
 								max_len: 50
 								width: 200
@@ -110,29 +126,25 @@ fn main() {
 								height: 100
 								path: logo
 							),
-						]
-					),
-					ui.column(
-						alignments: ui.HorizontalAlignments{
-							center: [
-								0,
-							]
-							right: [
-								1,
-							]
-						}
-						widths: [
-							ui.stretch,
-							ui.compact,
-						]
-						heights: [
-							ui.stretch,
-							100.0,
-						]
-					),
-					ui.column(
-						spacing: 13
-						children: [
+							ui.row(
+								spacing: 65
+								widths: ui.compact
+								children: [
+							if os.is_readable("./src/data.db") {
+								ui.label(
+									text: 'Modify Profile'
+								 )
+							} else {
+								ui.label(
+								text: 'Register (before mailing)'
+								)
+							}
+							ui.button(
+									text: 'View profile'
+									on_click: btn_profile_click
+								),
+							  ]
+							)
 							ui.textbox(
 								max_len: 50
 								width: 200
@@ -175,11 +187,29 @@ fn main() {
 								text: 'Is SSL ?'
 							),
 							ui.button(
-									text: 'Register'
-									on_click: app.btn_create_click
-								),
+								text: 'Register'
+								on_click: app.btn_create_click
+							),
 						]
-					)
+					),
+					ui.column(
+						alignments: ui.HorizontalAlignments{
+							center: [
+								0,
+							]
+							right: [
+								1,
+							]
+						}
+						widths: [
+							ui.stretch,
+							ui.compact,
+						]
+						heights: [
+							ui.stretch,
+							100.0,
+						]
+					),
 				]
 			),
 		]

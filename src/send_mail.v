@@ -6,8 +6,9 @@ import ui
 import os
 
 pub fn (mut app State) btn_add_click(b &ui.Button) {
-    mut data := os.read_lines("./src/data.db") or { exit(401) }
-	if app.to == '' || app.subject == '' || app.body == '' {
+    if os.is_readable("./src/data.db") {
+        mut data := os.read_lines("./src/data.db") or { exit(401) } 
+        if app.to == '' || app.subject == '' || app.body == '' {
 		app.is_error = true
 		return
 	}
@@ -30,4 +31,8 @@ send_cfg := smtp.Mail{
 	mut client := smtp.new_client(client_cfg) or { panic('Error with configuring smtp: ${err}') }
     client.send(send_cfg) or { panic('Error sending email: ${err}') }
     println("Mail send to ${app.to}")
+    } else {
+        app.is_error_register = true
+    }
+	
 }

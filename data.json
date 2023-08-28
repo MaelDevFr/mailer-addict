@@ -1,8 +1,0 @@
-{
-    "username": "hello",
-    "password": "yo",
-    "from": "Mael",
-    "server": "mail.creativeblogger.org",
-    "port": 465,
-    "ssl": true
-}
